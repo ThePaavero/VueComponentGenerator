@@ -1,7 +1,7 @@
 const inquirer = require('inquirer')
 const fs = require('fs')
 
-const dryRun = true
+const dryRun = false
 const componentDir = './components'
 const existingComponents = fs.readdirSync(componentDir)
 existingComponents.unshift('-NONE-')
@@ -45,14 +45,21 @@ const generate = (componentName, parentComponentName) => {
     fs.unlinkSync(filename)
     console.log('(unlinked because of dry run)')
   }
-  if (parentComponentName != '') {
+  if (parentComponentName != '' && parentComponentName != '-NONE-') {
     manipulateParentComponent(parentComponentName, componentName)
   }
 }
 
 const manipulateParentComponent = (parentComponentName, componentName) => {
   console.log('Manipulating parent component "' + parentComponentName + '"...')
-  let parentCode = fs.readFileSync(componentDir + '/' + parentComponentName + '.vue').toString()
-  parentCode = parentCode.replace('<script>', '<script>\n  import ' + componentName + ' from \'./components/' + componentName + '.vue\'\n')
-  console.log(parentCode)
+  const parentComponentPath = componentDir + '/' + parentComponentName + '.vue'
+  let parentCode = fs.readFileSync(parentComponentPath).toString()
+  parentCode = parentCode.replace('<script>', '<script>\n  import ' + componentName + ' from \'./' + componentName + '.vue\'\n')
+  parentCode = parentCode.replace('components: {', 'components: {\n  ' + componentName + ',\n')
+  if (dryRun) {
+    console.log('(no manipulating because of dry run)')
+    return
+  }
+  fs.writeFileSync(parentComponentPath, parentCode)
+  console.log('Done! Remember to auto format the parent component.')
 }
