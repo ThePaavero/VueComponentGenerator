@@ -1,11 +1,13 @@
 const inquirer = require('inquirer')
 const fs = require('fs')
 
+const dryRun = true
 const componentDir = './components'
-let componentName = ''
-let parentComponentName = ''
 const existingComponents = fs.readdirSync(componentDir)
 existingComponents.unshift('-NONE-')
+
+let componentName = ''
+let parentComponentName = ''
 
 inquirer.prompt({
   type: 'input',
@@ -33,9 +35,20 @@ const generate = (componentName, parentComponentName) => {
     'componentName': componentName
   }
   for (let i in tokensToValues) {
-    from = '[[[' + i + ']]]'
-    renderedCode = renderedCode.replace(from, tokensToValues[i])
+    renderedCode = renderedCode.replace('[[[' + i + ']]]', tokensToValues[i])
   }
   const filename = componentDir + '/' + componentName + '.vue'
   fs.writeFileSync(filename, renderedCode)
+  console.log('Done!')
+  if (dryRun) {
+    fs.unlinkSync(filename)
+    console.log('(unlinked because of dry run)')
+  }
+  if (parentComponentName != '') {
+    manipulateParentComponent(parentComponentName, componentName)
+  }
+}
+
+const manipulateParentComponent = (parentComponentName, componentName) => {
+  console.log('Manipulating parent component "' + parentComponentName + '"...')
 }
