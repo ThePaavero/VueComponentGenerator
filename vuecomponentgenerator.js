@@ -4,7 +4,8 @@ const fs = require('fs')
 const dryRun = false
 const componentDir = './components'
 const existingComponents = fs.readdirSync(componentDir)
-existingComponents.unshift('-NONE-')
+const emptyComponentNameValue = '-NONE-'
+existingComponents.unshift(emptyComponentNameValue)
 
 const init = () => {
   promptForComponentName().then((componentName) => {
@@ -65,7 +66,7 @@ const generate = (componentName, parentComponentName) => {
     fs.unlinkSync(filename)
     console.log('(unlinked because of dry run)')
   }
-  if (parentComponentName != '' && parentComponentName != '-NONE-') {
+  if (parentComponentName != '' && parentComponentName != emptyComponentNameValue) {
     manipulateParentComponent(parentComponentName, componentName)
   }
 }
