@@ -6,30 +6,50 @@ const componentDir = './components'
 const existingComponents = fs.readdirSync(componentDir)
 existingComponents.unshift('-NONE-')
 
-let componentName = ''
-let parentComponentName = ''
-
-inquirer.prompt({
-  type: 'input',
-  name: 'componentName',
-  message: 'Component name'
-}).then((answer) => {
-  componentName = answer.componentName
-  console.log('Creating component "' + componentName + '"...')
-  inquirer.prompt({
-    type: 'list',
-    name: 'parentComponentName',
-    message: 'Choose parent component',
-    choices: existingComponents
-  }).then((answer) => {
-    parentComponentName = answer.parentComponentName
-    generate(componentName, parentComponentName)
+const init = () => {
+  promptForComponentName().then((componentName) => {
+    console.log('Creating component "' + componentName + '"...')
+    promptForParentComponent().then((parentComponentName) => {
+      console.log('Generating component "' + componentName + '" under component "' + parentComponentName + '"')
+      generate(componentName, parentComponentName)
+    })
+  }).catch(() => {
+    console.log('You have to name your component!')
   })
-})
+}
+
+const promptForComponentName = () => {
+  return new Promise((resolve, reject) => {
+    inquirer.prompt({
+      type: 'input',
+      name: 'componentName',
+      message: 'Component name'
+    }).then((answer) => {
+      const name = answer.componentName
+      if (name != '') {
+        resolve(answer.componentName)
+      } else {
+        reject()
+      }
+    })
+  })
+}
+
+const promptForParentComponent = () => {
+  return new Promise((resolve) => {
+    inquirer.prompt({
+      type: 'list',
+      name: 'parentComponentName',
+      message: 'Choose parent component',
+      choices: existingComponents
+    }).then((answer) => {
+      resolve(answer.parentComponentName)
+    })
+  })
+}
 
 const generate = (componentName, parentComponentName) => {
   parentComponentName = parentComponentName.replace('.vue', '')
-  console.log('Generating component "' + componentName + '" under component "' + parentComponentName + '"')
   const templateFileLocation = 'D:\\node\\vuecomponentgenerator\\template.txt'
   let renderedCode = fs.readFileSync(templateFileLocation).toString()
   const tokensToValues = {
@@ -63,3 +83,5 @@ const manipulateParentComponent = (parentComponentName, componentName) => {
   fs.writeFileSync(parentComponentPath, parentCode)
   console.log('Done! Remember to auto format the parent component.')
 }
+
+init()
