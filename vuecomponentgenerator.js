@@ -28,6 +28,7 @@ inquirer.prompt({
 })
 
 const generate = (componentName, parentComponentName) => {
+  parentComponentName = parentComponentName.replace('.vue', '')
   console.log('Generating component "' + componentName + '" under component "' + parentComponentName + '"')
   const templateFileLocation = 'D:\\node\\vuecomponentgenerator\\template.txt'
   let renderedCode = fs.readFileSync(templateFileLocation).toString()
@@ -51,4 +52,7 @@ const generate = (componentName, parentComponentName) => {
 
 const manipulateParentComponent = (parentComponentName, componentName) => {
   console.log('Manipulating parent component "' + parentComponentName + '"...')
+  let parentCode = fs.readFileSync(componentDir + '/' + parentComponentName + '.vue').toString()
+  parentCode = parentCode.replace('<script>', '<script>\n  import ' + componentName + ' from \'./components/' + componentName + '.vue\'\n')
+  console.log(parentCode)
 }
