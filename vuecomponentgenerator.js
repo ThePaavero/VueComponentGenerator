@@ -3,6 +3,7 @@ const fs = require('fs')
 
 const dryRun = false
 const componentDir = './components'
+const toolDir = __dirname + '\\'
 const existingComponents = fs.readdirSync(componentDir)
 const emptyComponentNameValue = '-NONE-'
 existingComponents.unshift(emptyComponentNameValue)
@@ -51,7 +52,7 @@ const promptForParentComponent = () => {
 
 const generate = (componentName, parentComponentName) => {
   parentComponentName = parentComponentName.replace('.vue', '')
-  const templateFileLocation = 'D:\\node\\vuecomponentgenerator\\template.txt'
+  const templateFileLocation = toolDir + 'template.txt'
   let renderedCode = fs.readFileSync(templateFileLocation).toString()
   const tokensToValues = {
     'componentName': componentName
